@@ -1,0 +1,15 @@
+{
+  "name": "User",
+  "columns": {
+    "name": {
+      "type": "varchar"
+    },
+    "id": {
+      "primary": true,
+      "type": "int"
+    },
+    "ip": {
+      "type": "varchar"
+    }
+  }
+}
