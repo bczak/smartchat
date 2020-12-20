@@ -65,10 +65,10 @@ export async function connect() {
 	let answers = await inquirer.prompt(connection)
 	const {host, port} = answers
 	try {
-		await server.connect(host, port)
-
+		await server.connect(host, port, getName())
+		return ask()
 	} catch (err) {
-		console.log(1)
+		console.log(err)
 	}
 }
 

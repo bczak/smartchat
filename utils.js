@@ -53,3 +53,11 @@ export function info(user) {
 }
 
 
+export function init(name) {
+	return {
+		name,
+		ip: getIP(),
+		status: 'new'
+	}
+}
+
