@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "Smart Chat",
   "type": "module",
-  "main": "smartchat.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "nodemon smartchat.js",
-    "start": "node smartchat.js"
+    "test": "nodemon .",
+    "start": "node ."
   },
   "author": "",
   "license": "ISC",
@@ -16,15 +16,22 @@
     "nodemon": "^2.0.6"
   },
   "dependencies": {
+    "blessed": "^0.1.81",
     "chalk": "^2.4.2",
     "clear": "^0.1.0",
     "commander": "^6.2.0",
     "figlet": "^1.5.0",
     "inquirer": "^7.3.3",
+    "keyv": "^4.0.3",
+    "keyv-file": "^0.2.0",
     "randanimal": "^1.0.4",
+    "socket.io": "^3.0.4",
+    "socket.io-client": "^3.0.4",
     "sqlite3": "^5.0.0",
+    "terminal-kit": "^1.44.0",
     "typeorm": "^0.2.29",
     "uuid": "^3.4.0",
+    "vorpal": "^1.12.0",
     "ws": "^7.4.0"
   }
 }

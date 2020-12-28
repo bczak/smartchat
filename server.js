@@ -13,6 +13,7 @@ export default class Server {
 	_port
 	_messages = []
 	_users = []
+	_callbacks = []
 
 	constructor(port) {
 		this._port = port
@@ -24,20 +25,22 @@ export default class Server {
 		this._server.on('message', (...args) => this.message(...args))
 	}
 
-	async connect(host, port) {
+	async connect(host, port, callback) {
 		const ws = new WebSocket(`ws://${host}:${port}`)
 		const id = uuid().toString()
 		this._connections[id] = ws
-		//try to conenct
+		this._callbacks[id] = callback
 		ws.on('message', (text) => this.message(id, text))
 	}
 
-	async connection(ws, req) {
-		console.log(chalk.green('\n>>> Someone has connected to chat'))
+	async connection(ws) {
 		const id = uuid().toString()
 		this._queue[id] = ws
 		// require idenitification
 		await ws.send(JSON.stringify({type: 'init', id}))
+		ws.on('message', (text) => this.message(id, text))
+		console.log(chalk.green('\n>>> Someone has connected to chat'))
+
 	}
 
 	async message(user_id, text) {
@@ -45,13 +48,13 @@ export default class Server {
 		const user = this._connections[user_id]
 		if (message.type === 'init') {
 			// answer to identification
-			user.send(JSON.stringify({type: 'reinit', id: message.id, user: {name: getName(), ip: getIP()}}))
+			await user.send(JSON.stringify({type: 'reinit', id: message.id, user: {name: getName(), ip: getIP()}}))
 		} else if (message.type === 'reinit') {
 			//new member
 			if (this._queue[message.id] === undefined) return console.log("INVALID MESSAGE");
 			this._incomings[message.id] = this._queue[message.id];
 			this._queue[message.id] = undefined
-			this._incomings[message.id].send(JSON.stringify({type: 'welcome', users: _users}));
+			this._incomings[message.id].send(JSON.stringify({type: 'welcome', users: this._users}));
 
 		} else if(message.type === 'welcome') {
 			console.log(chalk.green('CONNECTED'))
