@@ -5,15 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7603a0a4-e6e5-4120-a34e-276faf1b57bc" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/user.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/smartchat.js" beforeDir="false" afterPath="$PROJECT_DIR$/smartchat.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cli.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/cli.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/client.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/client.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/memory.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/memory.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/protocol.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/protocol.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +111,8 @@
       <workItem from="1608311853503" duration="3754000" />
       <workItem from="1608456552242" duration="1896000" />
       <workItem from="1608736513265" duration="1661000" />
-      <workItem from="1609079772809" duration="17501000" />
+      <workItem from="1609079772809" duration="17706000" />
+      <workItem from="1609199117295" duration="24456000" />
     </task>
     <servers />
   </component>
@@ -129,6 +129,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
