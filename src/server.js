@@ -1,117 +1,141 @@
 import http from 'http'
-import * as io from 'socket.io'
+import * as ioServer from 'socket.io'
+import io from 'socket.io-client'
 import chalk from 'chalk'
-import {getIP, getUUID} from './memory.js'
-import cli, {start} from './cli.js'
-import {handshake, updateMembers} from './protocol.js'
+import {getIP, getUUID, init} from './memory.js'
 import {getName} from './memory.js'
-import {timeout} from './utils.js'
+import ora from 'ora'
+import cli, {start} from './cli.js'
+import {handshake} from './protocol.js'
 
 class Server {
-	_server = null
-	_io = null
-	_uuid = null
-	connections = [] // who conncted to me
-	clients = [] // whom I connected to
+	httpServer
+	incoming = {socket: null, host: null, port: null, name: null} // node who connected to me
+	server = {socket: null, host: null, port: null, name: null} // me
+	client = {socket: null, host: null, port: null, name: null} // node whom i connected to
+	uuid
 	members = []
-	lastUpdate = Date.now()
-	
-	getClient(client) {
-		for (let conn of this.connections) if (conn.client.id === client.id) return conn
-		return null
-	}
-	
-	getMemberByUUID(uuid) {
-		for (let member of this.members) if (member.uuid === uuid) return member
-		return null
-	}
-	
-	removeByUUID(uuid) {
-		this.clients = this.clients.filter(e => e.uuid !== uuid)
-		this.connections = this.connections.filter(e => e.uuid !== uuid)
-		this.members = this.members.filter(e => e.uuid !== uuid)
-	}
+	spinner = null
 	
 	constructor() {
-		getUUID().then(uuid => this._uuid = uuid)
-		this._server = http.createServer()
-		this._io = new io.Server(this._server)
-		this._io.on('connection', client => {
+		init()
+		this.httpServer = http.createServer()
+		this.server.socket = new ioServer.Server(this.httpServer)
+		this.server.socket.on('connection', async client => {
 			client.on('handshake', (data) => {
 				this.handshake(JSON.parse(data), client)
 			})
-			client.on('disconnect', () => {
-				this.exit(client)
+			client.on('handshaked', (data) => {
+				this.handshaked(JSON.parse(data), client)
 			})
-			client.on('exit', () => {
-				this.exit(client)
+			client.on('reconnect', (data) => {
+				this.reconnect(data)
 			})
 		})
 	}
-	
-	async updateList(data) {
-		this.lastUpdate = Date.now()
-		this.members = data
-		await start()
+	async connectClient(data) {
+		this.client.host = data.address.split(':')[0]
+		this.client.port = data.address.split(':')[1]
+		this.client.name = data.name
+		this.client.socket = io.connect(`http://${data.address}`, {
+			forceNew: true,
+			reconnection: false
+		})
 	}
 	
-	async addClient(client) {
-		this.clients.push(client)
+	async reconnect(data) {
+		await this.client.socket.disconnect()
+		await this.connectClient(data)
+		await this.client.socket.emit('handshaked', await handshake())
+	}
+	
+	async handshaked(data, client) {
+		if (this.spinner !== null && this.spinner.isSpinning) {
+			this.spinner.stop()
+			console.log(chalk.green('Authorized'))
+			await start()
+			this.incoming = {
+				socket: client,
+				port: data.address.split(':')[1],
+				host: data.address.split(':')[0],
+				name: data.name
+			}
+		}
+	}
+	async setIncoming(data, client) {
+		this.incoming.host = data.address.split(':')[0]
+		this.incoming.port = data.address.split(':')[1]
+		this.incoming.name = data.name
+		this.incoming.socket = client
 	}
 	
 	async handshake(data, client) {
-		this.connections.push({client, name: data.name, uuid: data.uuid})
-		const member = await this.getMemberByUUID(data.uuid)
-		if (member !== null) return
-		this.members.push({name: data.name, uuid: data.uuid})
-		client.emit('handshake', await handshake())
-		this.broadcast('update-members', await updateMembers(this.members))
-		await start()
+		if (this.client.socket === null && this.incoming.socket === null) {
+			// register new node as incoming, if i am alone in network
+			await this.setIncoming(data, client)
+			await this.connectClient(data)
+			return this.client.socket.emit('handshaked', await handshake())
+		} else if (this.incoming.socket !== null) {
+			await this.incoming.socket.emit('reconnect', data)
+			return this.setIncoming(data,client)
+		}
+		await this.setIncoming(data,client)
+		
 		
 	}
 	
-	async exit(client) {
-		const conn = this.getClient(client)
-		if (conn === null) return
-		await this.removeByUUID(conn.uuid)
-		await this.broadcast('update-members', await updateMembers(this.members))
-		await client.disconnect()
-		await start()
+	async sendNext(...data) {
+		if (this.client.socket === null) return
+		this.client.socket.emit(...data)
 	}
-	
-	broadcast(...data) {
-		for (let client of this.clients) client.client.emit(...data)
-		for (let client of this.connections) client.client.emit(...data)
-	}
-	
 	
 	async listen(port) {
+		this.httpServer.listen(port)
+		this.uuid = await getUUID()
+		this.members.push({name: await getName(), uuid: this.uuid})
 		console.log(chalk.yellow('Listening on ') + chalk.green(await getIP()) + ':' + chalk.red(port))
-		this._server.listen(port)
-		this.members.push({name: await getName(), uuid: this._uuid})
 	}
 	
-	async isConnected(host, port) {
-		for (let client of this.clients) {
-			if (client.host === host && client.port === port && client._connected && client.socket.connected) return true
+	async connect(options) {
+		if (this.client.socket !== null) {
+			this.spinner.stop()
+			return console.log(chalk.red('You are already in network'))
 		}
-		return false
+		this.client.host = options.host
+		this.client.port = options.port
+		this.client.socket = io.connect(`http://${this.client.host}:${this.client.port}`, {
+			forceNew: true,
+			reconnection: false
+		})
+		
+		this.client.socket.on('connect', async () => {
+			this.spinner.stop()
+			console.log(chalk.green('Connected'))
+			this.spinner = ora('Trying to authorize...').start()
+			setTimeout(() => {
+				if(this.spinner.isSpinning) {
+					this.spinner.stop()
+					console.log(chalk.red("Unable to authorize"))
+				}
+			}, 5000)
+			this.client.socket.emit('handshake', await handshake())
+			await start()
+		})
+		this.client.socket.on('reconnect', (data) => {
+			this.reconnect(data)
+		})
+		this.spinner = ora('Trying to connect...').start()
+		setTimeout(() => {
+			if(this.spinner.isSpinning) {
+				this.spinner.stop()
+				console.log(chalk.red("Unable to connect"))
+			}
+		}, 5000)
 	}
 	
-	async disconnect() {
-		for (let client of this.clients) {
-			client.emit('exit')
-			client.socket.close()
-		}
-		for (let conn of this.connections) {
-			conn.client.close()
-		}
-		this.clients = []
-		this.connections = []
-		this.members = [{name: await getName(), uuid: this._uuid}]
-	}
 }
 
 const server = new Server()
 
 export default server
+

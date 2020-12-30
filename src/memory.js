@@ -22,12 +22,39 @@ export async function getUUID() {
 	await memory.set('uuid', uuid)
 	return uuid
 }
+
 export async function setRecipients(recipients) {
 	await memory.set('recipients', recipients)
 }
+
 export async function getRecipients() {
 	let recipients = await memory.get('recipients')
 	return (recipients === undefined) ? [] : recipients
+}
+
+export async function setMode() {
+	await memory.set('mode', 'messaging')
+}
+
+export async function getMode() {
+	await memory.get('mode')
+}
+
+export async function getMessages(status = 'read') {
+	return (await memory.get('messages')).filter(e => e.status = status)
+}
+
+//message = {from: uuid, to:uuid, text: text, date: unixtime, status: (read|unread|tobesent)}
+export async function addMessage(message) {
+	let messages = await memory.get('messages')
+	messages.push(message)
+	await memory.set('messages', messages)
+}
+
+export async function init() {
+	await memory.set('notifications', await memory.get('notifications') || [])
+	await memory.set('messages', await memory.get('messages') || [])
+	await memory.set('mode', 'cli')
 }
 
 export async function getIP() {
@@ -44,6 +71,12 @@ export async function getIP() {
 	})
 	await memory.set('ip', address)
 	return address
+}
+
+export async function addNotification(notification) {
+	let notifications = await memory.get('notifications')
+	notifications.push(notification)
+	await memory.set('notifications', notifications)
 }
 
 export default memory

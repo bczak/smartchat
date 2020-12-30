@@ -1,9 +1,13 @@
-import server from './server.js'
-import {getName} from './memory.js'
+import {getName, getUUID, getIP} from './memory.js'
 
 export async function handshake() {
-	return JSON.stringify({uuid: server._uuid, name: await getName()})
+	return JSON.stringify({
+		uuid: await getUUID(),
+		name: await getName(),
+		address: `${await getIP()}:${process.env.PORT || 7777}`
+	})
 }
+
 export async function updateMembers(members) {
 	return JSON.stringify(members)
 }
