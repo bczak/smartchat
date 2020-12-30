@@ -41,18 +41,12 @@ class Server {
 				this.handshake(JSON.parse(data), client)
 			})
 			client.on('disconnect', () => {
-				this.disconnected(client)
+				this.exit(client)
 			})
 			client.on('exit', () => {
 				this.exit(client)
 			})
 		})
-	}
-	
-	async disconnected(client) {
-		const conn = this.getClient(client)
-		if (conn === null) return
-		this.removeByUUID(conn._uuid)
 	}
 	
 	async updateList(data) {

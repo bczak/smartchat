@@ -22,6 +22,13 @@ export async function getUUID() {
 	await memory.set('uuid', uuid)
 	return uuid
 }
+export async function setRecipients(recipients) {
+	await memory.set('recipients', recipients)
+}
+export async function getRecipients() {
+	let recipients = await memory.get('recipients')
+	return (recipients === undefined) ? [] : recipients
+}
 
 export async function getIP() {
 	const ip = await memory.get('ip')

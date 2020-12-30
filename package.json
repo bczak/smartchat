@@ -24,6 +24,7 @@
     "inquirer": "^7.3.3",
     "keyv": "^4.0.3",
     "keyv-file": "^0.2.0",
+    "luxon": "^1.25.0",
     "ora": "^5.1.0",
     "randanimal": "^1.0.4",
     "socket.io": "^3.0.4",

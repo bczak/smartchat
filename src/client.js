@@ -30,7 +30,6 @@ export default class Client {
 		setTimeout(() => this.authorizingFailed(), 5000)
 	}
 	
-	
 	async handshake(data) {
 		this.auth_spinner.stop()
 		this._authorized = true
@@ -70,6 +69,7 @@ export default class Client {
 		}, 5000)
 		cli.hide()
 	}
+	
 	async error(data) {
 		console.log(data)
 	}

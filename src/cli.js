@@ -1,9 +1,10 @@
 import inquirer from 'inquirer'
 import vorpal from 'vorpal'
-import {getIP, getName} from './memory.js'
+import {getIP, getName, setRecipients} from './memory.js'
 import Client from './client.js'
 import server from './server.js'
 import chalk from 'chalk'
+import {DateTime} from 'luxon'
 
 const port = process.env.PORT || 7777
 const hostnamePromt = [
@@ -30,9 +31,15 @@ const members = async (data) => {
 		choices: data.map(e => `${e.name} : ${e.uuid}`)
 	}
 }
+const msg = [{
+	type: 'input',
+	name: 'message',
+	message: 'You:'
+}]
+
 
 const cli = vorpal()
-const listeners = process.stdin.removeAllListeners('keypress');
+const listeners = process.stdin.removeAllListeners('keypress')
 
 cli
 	.command('connect', 'Connect to existing network')
@@ -67,12 +74,19 @@ cli
 cli
 	.command('message', 'Start messaging to someone')
 	.cancel(async () => {
+		cli.hide()
 		console.log('stopped')
 	})
 	.action(async (args) => {
 		let answer = await inquirer.prompt(await members(server.members))
 		answer = answer.recipient.map(e => ({name: e.split(' : ')[0], uuid: e.split(' : ')[1]}))
-		console.log(answer)
+		if (answer.length === 0) return
+		await setRecipients(answer)
+		console.log(chalk.green(`Now you're chating with:`))
+		for (let recipient of answer) console.log(chalk.blue(`\t${recipient.name}`))
+		cli.ui.redraw("")
+		await messaging()
+		cli.ui.redraw.done()
 	})
 
 cli
@@ -81,6 +95,14 @@ cli
 		this.log(args.words.join(' ') + ' is not a valid command.')
 		cb()
 	})
+
+export async function messaging() {
+	let {message} = await inquirer.prompt(msg)
+	if (message.length === 0) return
+	cli.ui.redraw(chalk.bgGreen(`[${DateTime.local().toFormat('dd/LL/yyyy HH:mm:ss')}] You:`))
+	console.log(message + '\n')
+	await messaging()
+}
 
 export async function start(num) {
 	const name = await getName()
