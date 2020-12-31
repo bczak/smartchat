@@ -1,7 +1,6 @@
 import inquirer from 'inquirer'
 import vorpal from 'vorpal'
-import {getIP, getName, setMode, setRecipients} from './memory.js'
-import Client from './client.js'
+import {getIP, getName, getUUID} from './memory.js'
 import server from './server.js'
 import chalk from 'chalk'
 
@@ -11,7 +10,7 @@ const hostnamePromt = [
 		type: 'input',
 		name: 'host',
 		message: 'Enter hostname:',
-		default: 'localhost'
+		default: '192.168.0.132'
 	}
 ]
 const portPromt = [
@@ -52,8 +51,8 @@ cli
 	})
 cli
 	.command('disconnect', 'Disconnect from network')
-	.action((args, callback) => {
-		server.disconnect().then(() => callback())
+	.action(async (args, callback) => {
+		await server.disconnect()
 	})
 
 cli
@@ -64,31 +63,20 @@ cli
 	.action(async (args) => {
 		console.log(`You are ${chalk.green(await getName())}`)
 		console.log(`Your URL: ${chalk.green(await getIP())}:${chalk.red(port)}`)
-		console.log(chalk.yellow(`Network members(${server.members.length}):`))
-		for (let member of server.members) {
-			console.log(`\t${(member.uuid === server._uuid) ? 'You' : member.name} (${member.uuid})`)
-		}
-		console.log(chalk.blue("Connected nodes:"))
-		console.log(chalk.green(`\tPrevious: `, server.incoming.port))
-		console.log(chalk.green(`\tNext: `, server.client.port))
+		console.log(`Your UUID: ${chalk.green(await getUUID())}`)
+		console.log(chalk.blue('Connected nodes:'))
+		console.log(chalk.green(`\tPrevious: ${server.incoming.name} (${server.incoming.host}:${chalk.red(server.incoming.port)})`))
+		console.log(chalk.green(`\tNext: ${server.client.name} (${server.client.host}:${chalk.red(server.client.port)})`))
+		console.log(chalk.blue('Leader node: ') + chalk.green(server.le.uuid))
 	})
 cli
-	.command('message', 'Start messaging to someone')
+	.command('chat', 'Start messaging to someone')
 	.cancel(async () => {
 		cli.hide()
 		console.log('stopped')
 	})
 	.action(async (args) => {
-		let answer = await inquirer.prompt(await members(server.members))
-		answer = answer.recipient.map(e => ({name: e.split(' : ')[0], uuid: e.split(' : ')[1]}))
-		if (answer.length === 0) return
-		await setRecipients(answer)
-		console.log(chalk.green(`Now you're chating with:`))
-		for (let recipient of answer) console.log(chalk.blue(`\t${recipient.name}`))
-		await setMode('messaging')
-		cli.ui.redraw('')
-		await messaging()
-		cli.ui.redraw.done()
+		console.log('chat')
 	})
 
 cli
@@ -106,12 +94,8 @@ export async function messaging() {
 	await messaging()
 }
 
-export async function start(num) {
+export async function start() {
 	const name = await getName()
-	if (num !== undefined) {
-		cli.ui.cancel()
-		cli.hide()
-	}
 	await cli
 		.delimiter(`${name} >`)
 		.show()

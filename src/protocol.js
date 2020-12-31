@@ -8,6 +8,13 @@ export async function handshake() {
 	})
 }
 
-export async function updateMembers(members) {
-	return JSON.stringify(members)
+export async function repair() {
+	return JSON.stringify({
+		uuid: await getUUID(),
+		name: await getName(),
+		address: `${await getIP()}:${process.env.PORT || 7777}`
+	})
+}
+export async function leader(le) {
+	return JSON.stringify({...le})
 }
