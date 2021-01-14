@@ -3,7 +3,7 @@ import ora from 'ora'
 import {start, stop} from './cli.js'
 import chalk from 'chalk'
 import * as protocol from './protocol.js'
-import {getUUID} from './memory.js'
+import {getName, getUUID} from './memory.js'
 import {server} from './server.js'
 
 class Client {
@@ -17,6 +17,30 @@ class Client {
 	 */
 	constructor() {
 		this.spinner.stop()
+	}
+	
+	/**
+	 * Function to send message
+	 */
+	async send(message) {
+		const ctx = {
+			text: message,
+			time: null,
+			from: {name: await getName(), uuid: await getUUID()},
+			approved: {uuid: null, name: null}
+		}
+		this.client.socket.emit('message', JSON.stringify(ctx))
+	}
+	
+	/**
+	 * Function to resend message
+	 */
+	async resend(message) {
+		this.client.socket.emit('message', JSON.stringify(message))
+	}
+	
+	async emit(action, data) {
+		this.client.socket.emit(action, data)
 	}
 	
 	/**
@@ -35,7 +59,7 @@ class Client {
 		})
 		await stop()
 		this.spinner = await ora('Trying to connect...').start()
-		setTimeout(() => this.reset('connect'), 5000) // reset connection in 5 seconds if couldn't connect
+		setTimeout(() => this.reset('connect'), 1000) // reset connection in 5 seconds if couldn't connect
 		
 		await this.init()
 	}
@@ -46,6 +70,7 @@ class Client {
 	async reset(state, verbose = false) {
 		this.spinner.stop()
 		if (this.status === 'authorized') return
+		if (this.client.socket) this.client.socket.disconnect()
 		this.client = {socket: null, port: null, host: null, uuid: null, name: null}
 		if (!verbose) {
 			console.log(chalk.red('Unable to ' + state))
@@ -67,6 +92,8 @@ class Client {
 				this.client.socket.disconnect()
 				this.reset(null, true)
 			} else {
+				this.status = 'disconnected'
+				this.reset(null, true)
 				//quit unexpected
 			}
 			this._wait = false
@@ -102,11 +129,14 @@ class Client {
 		})
 	}
 	
+	/**
+	 * turn off the client
+	 */
 	async off() {
 		this.client = {socket: null, port: null, host: null, uuid: null, name: null}
 		this._wait = false
 		this.status = 'disconnected'
-		server.off()
+		await server.off()
 	}
 	
 	async repaired() {
@@ -146,7 +176,7 @@ class Client {
 		this.status = 'connected'
 		console.log(chalk.green('Connected'))
 		this.spinner.start('Trying to authorize...')
-		setTimeout(() => this.reset('authorize'), 5000) // reset connection in 5 seconds if couldn't authorize
+		setTimeout(() => this.reset('authorize'), 1000) // reset connection in 5 seconds if couldn't authorize
 		this.client.socket.emit('handshake', await protocol.handshake())
 	}
 }

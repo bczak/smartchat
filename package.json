@@ -20,12 +20,14 @@
     "inquirer": "^7.3.3",
     "keyv": "^4.0.3",
     "keyv-file": "^0.2.0",
+    "luxon": "^1.25.0",
     "ora": "^5.2.0",
     "randanimal": "^1.0.4",
     "socket.io": "^3.0.5",
     "socket.io-client": "^3.0.5",
     "sqlite3": "^5.0.1",
     "uuid": "^8.3.2",
+    "uuid-time": "^1.0.0",
     "vorpal": "^1.12.0",
     "ws": "^7.4.2"
   }

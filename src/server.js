@@ -2,6 +2,13 @@ import http from 'http'
 import * as io from 'socket.io'
 import {client} from './client.js'
 import * as protocol from './protocol.js'
+import {addMessage, getName, getUUID} from './memory.js'
+import {redraw} from './cli.js'
+import * as uuid from 'uuid'
+import {DateTime} from 'luxon'
+import chalk from 'chalk'
+
+const uuidv4 = uuid.v1
 
 class Server {
 	httpServer
@@ -10,7 +17,7 @@ class Server {
 	leader = {uuid: null, name: null}
 	waiting = null
 	_wait = false
-	
+	_election = {partitipant: false, candidate: null, me: null}
 	/**
 	 * Create server and listen on gven port
 	 * @param port port to listen on
@@ -23,6 +30,12 @@ class Server {
 		this.init()
 	}
 	
+	async restart() {
+		this.reset()
+		client.client.socket.destroy()
+		client.off()
+	}
+	
 	/**
 	 * Initialize server
 	 */
@@ -31,10 +44,9 @@ class Server {
 	}
 	
 	async reset() {
-		this.client.socket.disconnect()
+		if(this.client.socket) this.client.socket.disconnect()
 		this.client = {socket: null, host: null, port: null, name: null, uuid: null}
 	}
-	
 	
 	/**
 	 * Function called when someone connected to server
@@ -80,13 +92,97 @@ class Server {
 	
 	/**
 	 * Set up new client
-	 * @returns {Promise<void>}
 	 */
 	async setup() {
 		this.client.socket.on('repair', (data) => client.repair(data))
 		this.client.socket.on('disconnect', () => this.disconnected())
+		this.client.socket.on('message', (data) => this.message(JSON.parse(data)))
+		this.client.socket.on('election', (data) => this.election(JSON.parse(data)))
+		this.client.socket.on('elected', (data) => this.elected(JSON.parse(data)))
 	}
 	
+	/**
+	 * Function called when server recieve message from previos node
+	 * Action: if it is approved, then print(save) it and send to next node,
+	 * otherwise just send it next to find leader, so it can approve the message
+	 * if you are leader and it is not approved, then approve(save) it and send next
+	 * if you are leader and it approved, then ignore it
+	 * if you are the sender and it is not approved, then start election
+	 */
+	async message(message) {
+		const me = {name: await getName(), uuid: await getUUID()}
+		if (message.approved.uuid !== null && message.approved.uuid === me.uuid) {
+			return
+		}
+		if (message.from.uuid === me.uuid && message.approved.uuid === null) {
+			await this.startElection()
+			setTimeout((msg) => client.resend(msg), 500, message) // wait 0.5 second and resend it
+			return
+		}
+		if (message.approved.uuid === null && this.leader.uuid === me.uuid) {
+			message.approved = me
+			message.time = DateTime.local().toISO()
+		}
+		if (message.approved.uuid !== null) {
+			const sender = (message.from.uuid === me.uuid) ? 'You' : message.from.name
+			await redraw(chalk.bgGreen.yellowBright(`[${DateTime.fromISO(message.time).toFormat('dd/LL/yyyy HH:mm:ss')}] `) + chalk.bgGreen.black.bold(`${sender}:`) + '\n' + message.text)
+			await addMessage(message)
+		}
+		await client.resend(message)
+		
+	}
+	
+	/**
+	 * Function to start eletion
+	 */
+	async startElection() {
+		if (this._election.partitipant) return //todo already a partitipant
+		this._election.me = uuidv4()
+		this._election.partitipant = true
+		this._election.candidate = this._election.me
+		const message = {candidate: this._election.me}
+		await client.emit('election', JSON.stringify(message))
+	}
+	
+	/**
+	 * Function to process election
+	 */
+	async election(data) {
+		if (this._election.me === null) this._election.me = uuidv4().toString()
+		// 1
+		if (data.candidate > this._election.me) {
+			return client.emit('election', JSON.stringify(data))
+		}
+		// 2
+		if (data.candidate < this._election.me && !this._election.partitipant) {
+			return client.emit('election', JSON.stringify({candidate: this._election.me}))
+		}
+		// 3
+		if (data.candidate < this._election.me && this._election.partitipant) {
+			return
+		}
+		// 4
+		if (data.candidate === this._election.me) {
+			this._election = {me: null, partitipant: false, candidate: null}
+			this.leader = {name: await getName(), uuid: await getUUID()}
+			await client.emit('elected', JSON.stringify(this.leader))
+		}
+	}
+	
+	/**
+	 * Function called when leader was elected
+	 */
+	async elected(data) {
+		if (data.uuid === await getUUID()) return
+		this._election = {me: null, partitipant: false, candidate: null}
+		this.leader = data
+		await client.emit('elected', JSON.stringify(this.leader))
+	}
+	
+	
+	/**
+	 * Function called when someone disconnecting
+	 */
 	async disconnected() {
 		if (this._wait) {
 			// quit exprected
@@ -98,9 +194,14 @@ class Server {
 		this._wait = false
 		
 	}
+	
+	/**
+	 * turn off the server
+	 */
 	async off() {
 		this.client = {socket: null, host: null, port: null, name: null, uuid: null}
 		this._wait = false
+		this.leader = {uuid: null, name: null}
 	}
 }
 

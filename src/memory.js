@@ -4,7 +4,7 @@ import {KeyvFile} from 'keyv-file'
 import os from 'os'
 import * as uuid from 'uuid'
 
-const uuidv4 = uuid.v4
+const uuidv4 = uuid.v1
 
 const port = process.env.PORT || 7777
 const memory = new Keyv({
@@ -42,13 +42,14 @@ export async function getMode() {
 	await memory.get('mode')
 }
 
-export async function getMessages(status = 'read') {
-	return (await memory.get('messages')).filter(e => e.status = status)
+export async function getMessages() {
+	return memory.get('messages')
 }
 
 //message = {from: uuid, to:uuid, text: text, date: unixtime, status: (read|unread|tobesent)}
 export async function addMessage(message) {
 	let messages = await memory.get('messages')
+	if (messages === undefined) messages = []
 	messages.push(message)
 	await memory.set('messages', messages)
 }
