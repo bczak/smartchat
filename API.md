@@ -1,1 +1,6 @@
-# Requests
+## API
+
+### Connection
+### Handshake
+### Wait
+### Repair

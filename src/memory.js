@@ -2,7 +2,9 @@ import Keyv from 'keyv'
 import randanimal from 'randanimal'
 import {KeyvFile} from 'keyv-file'
 import os from 'os'
-import uuidv4 from 'uuid'
+import * as uuid from 'uuid'
+
+const uuidv4 = uuid.v4
 
 const port = process.env.PORT || 7777
 const memory = new Keyv({

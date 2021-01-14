@@ -1,39 +1,32 @@
 {
   "name": "smartchat",
-  "version": "0.0.1",
-  "description": "Smart Chat",
+  "version": "1.0.0",
   "type": "module",
+  "description": "",
   "main": "src/index.js",
   "scripts": {
     "test": "nodemon .",
     "start": "node ."
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/preset-env": "^7.12.7",
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.7"
   },
   "dependencies": {
-    "blessed": "^0.1.81",
-    "chalk": "^2.4.2",
+    "chalk": "^4.1.0",
     "clear": "^0.1.0",
-    "commander": "^6.2.0",
-    "figlet": "^1.5.0",
     "inquirer": "^7.3.3",
     "keyv": "^4.0.3",
     "keyv-file": "^0.2.0",
-    "luxon": "^1.25.0",
-    "ora": "^5.1.0",
+    "ora": "^5.2.0",
     "randanimal": "^1.0.4",
-    "socket.io": "^3.0.4",
-    "socket.io-client": "^3.0.4",
-    "sqlite3": "^5.0.0",
-    "terminal-kit": "^1.44.0",
-    "typeorm": "^0.2.29",
-    "uuid": "^3.4.0",
+    "socket.io": "^3.0.5",
+    "socket.io-client": "^3.0.5",
+    "sqlite3": "^5.0.1",
+    "uuid": "^8.3.2",
     "vorpal": "^1.12.0",
-    "ws": "^7.4.0"
+    "ws": "^7.4.2"
   }
 }
