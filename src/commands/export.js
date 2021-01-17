@@ -7,7 +7,7 @@ export async function apply(cli) {
 		.action(async (args) => {
 			const name = `messages_${process.env.PORT || 7777}_${new Date().toISOString()}.txt`
 			let messages = await getMessages();
-			messages.sort((a, b) => (a.time > b.time) ? 1: -1)
+			messages.sort((a, b) => (new Date(a.time) > new Date(b.time)) ? 1: -1)
 			messages = messages.map(message => `[${message.time}](${message.from.name}): ${message.text}`)
 			messages = messages.join('\n')
 			fs.writeFileSync(name, messages)
