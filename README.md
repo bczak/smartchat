@@ -1,12 +1,14 @@
-## SmartChat
+# SmartChat
 
 SmartChat is application for chating between two and more nodes.
 
 This is an example of Chang Roberts Leader election algorithm.
 
-Connection are mannaged by WebSockets.
+Connections are mannaged by WebSockets.
 
-### Getting started
+Author is Tashpulatov Jakhongir.
+
+## Getting started
 First install Node.js v14.x. If you have already installed it, you can skip this step.
 
 ```shell
@@ -31,7 +33,7 @@ $ PORT=8080 node .
 Default port is __7777__
 
 Or, you can download the package and run `bash instal.sh`. It will require sudo user password.
-### Commands
+## Commands
 Application supports this non-trivial commands:
 > `status`
 
@@ -67,16 +69,16 @@ This command allows you to export all messages to file. It will be named that wa
 This command allows you unexpected close the application even if you are connected to a network. In that case you
 don't care what will be with them. It is not your business.
 
-#### But really. What happens?
+### But really. What happens?
 Nothing. When other nodes will receive no sign from you, they repair the network. See repair section.
 
-### Connection
+## Connection
 For connection, you will be need a host and port of at least one member of network. Or another alone node. 
 The topology of network is __ring__. Every new node will be trying to join the ring. See Repair section for more.
 
 For understanding how works connection look into [diagram meaning](DIAGRAM.md)
 
-### Handshake
+## Handshake
 When node is trying to join the network, it sends __handshake__ message and gets __handshaked__ when joining is 
 established. Now it can fully access all function of chat.
 From this moment it has a node whom it connected to(__NEXT__ node) and node who connected to it(__PREVIOUS__ node).
@@ -88,7 +90,7 @@ the mode by typing empty string and press __Enter__.
 To send a message to __all members__ just type it and press enter. Sooner or later your message will get all members 
 of the network.
 
-#### How it works? 
+### How it works? 
 Simple. You send a message only to next node. When next node receive it - it checks for a stamp. Stamp can be made only 
 by the leader. 
 
@@ -97,11 +99,11 @@ he did it and who did it. If he is not the leader it sends the message to next n
 topology sooner or later the message should get it owner. If he checks, that message has not been stamped yet, 
 that means - the leader doesn't exist. This is the moment, when __election__ starting.
 
-### Election
+## Election
 The [Chang and Roberts algorithm](https://en.wikipedia.org/wiki/Chang_and_Roberts_algorithm) is a ring-based 
 coordinator election algorithm. In our case leader is needed for creating stamps on messages.
 
-#### How election works?
+### How election works?
 1. Initially each node in the ring is marked as non-participant.
 2. A node that notices a lack of leader(see message section) starts an election. It
    creates an election message containing its UUID (v1 for comparing). It then sends this message to next node 
@@ -128,13 +130,65 @@ When a node starts acting as the leader, it begins the second stage of the algor
    over.
    
 
-### Repair
-Repair is algorithm for repairing network when someone leaves it or joins it. Let's look into this more.
+## Repair
+Repair is algorithm for repairing network when someone leaves or joins it. Let's look.
 If you don't understand diagrams, look into [diagram meaning](DIAGRAM.md)
-#### The sitaution: there is already a network, and you are connected to it assuming that there are N > 2 nodes or more.
+
+### The situation: there is already a network, and you are connected to it assuming that there are N > 2 nodes.
 What happens when you're leaving the network by typing `disconnect` or unexpectedly close application?
 
 Thanks to WebSockets, every action you made are sent to server/client even if you're disconnecting. So, when you are 
 leaving the NEXT and PREVIOUS nodes will know it.
 
 Let's assume there is a network about 5 nodes. And you're the node A.
+
+![1](./static/exit_a/1.png)
+
+And you're disconnecting/leaving. You broke connection with NEXT and PREVIOUS nodes:
+
+![2](./static/exit_a/2.png)
+
+When B knows that you disconnected, it will do nothing. He is the weak node in a broken network.
+
+When E knows that you disconnected, it will start repairing network by sending message containing his URL to his NEXT 
+node - D
+
+If D has connected NEXT node, we know it has(C), it sends the message to C. And so on. they will be sending to next 
+the message nodes until they found a node without connected client(NEXT node). That means they found the weak node.
+
+![3](./static/exit_a/3.png)
+
+When B gets the message containing E's URL, it will connect to it. And that it is. __Network is repaired__
+
+![4](./static/exit_a/4.png)
+
+
+### The situation: there is already a network, and you are connected to it assuming that there are 2 nodes.
+
+Simple. When you're leaving, that means other node disconnects too, and you're both alone nodes now.
+
+### The situation: there is already a network, and you are NOT connected to it. And you want to join the network.
+
+Let's assume you're node A.
+
+![1](./static/join_a/1.png)
+
+You are connecting to node E, so you run `connect` and enter E's URL.
+
+![2](./static/join_a/2.png)
+
+When E accept your connection you need to send `handshake` to join the network. Without it you're not a member of the 
+network, but just connected to E.
+
+![3](./static/join_a/3.png)
+
+Now when E know about you, he disconnectes from B and send you `hadshaked` message. That means, that you're connected 
+to network. But as you can see now, the network is broken. There is no connection between A and B. So you have to repair 
+the network by sending repair message as shown in another situation(the first one)
+
+![4](./static/join_a/4.png)
+
+When B gets message to repair, it will connect to you and now the network is fixed.
+
+
+![5](./static/exit_a/1.png)

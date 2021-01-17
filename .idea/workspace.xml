@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7603a0a4-e6e5-4120-a34e-276faf1b57bc" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/commands/export.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/commands/export.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +30,9 @@
     <auto-save>true</auto-save>
   </component>
   <component name="ProjectId" id="1lboGSGLWFBEFzjexSHbFngWCZB" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -42,7 +45,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="javascript.nodejs.core.library.configured.version" value="14.15.4" />
     <property name="javascript.nodejs.core.library.typings.version" value="14.14.21" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Downloads/Telegram Desktop/site" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/static/join_a" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -55,6 +58,12 @@
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
     <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
     <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/static/join_a" />
+      <recent name="$PROJECT_DIR$/static/exit_a" />
+    </key>
   </component>
   <component name="RunManager" selected="npm.test">
     <configuration name="start" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
@@ -115,7 +124,7 @@
       <workItem from="1610554138706" duration="13000" />
       <workItem from="1610560631067" duration="5305000" />
       <workItem from="1610650407628" duration="14749000" />
-      <workItem from="1610715395960" duration="12061000" />
+      <workItem from="1610715395960" duration="15257000" />
     </task>
     <servers />
   </component>
