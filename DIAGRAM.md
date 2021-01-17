@@ -23,3 +23,4 @@ The topology of network is RING.
 
 For example network with 4 nodes looks like that:
 ![Topology](./static/topology4.png)
+

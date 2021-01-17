@@ -7,11 +7,18 @@ This is an example of Chang Roberts Leader election algorithm.
 Connection are mannaged by WebSockets.
 
 ### Getting started
-Clone it and install dependencies:
+First install Node.js v14.x. If you have already installed it, you can skip this step.
+
+```shell
+curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+sudo apt-get install -y nodejs
 ```
-$ git clone https://github.com/tashpjak/smartchat.git
-$ cd smartchat
-$ npm install
+
+Clone it and install dependencies:
+```shell
+git clone https://github.com/tashpjak/smartchat.git
+cd smartchat
+npm install
 ```
 When downloading is done, you can launch it by enter:
 ```
@@ -23,6 +30,7 @@ $ PORT=8080 node .
 ```
 Default port is __7777__
 
+Or, you can download the package and run `bash instal.sh`. It will require sudo user password.
 ### Commands
 Application supports this non-trivial commands:
 > `status`
@@ -126,5 +134,7 @@ If you don't understand diagrams, look into [diagram meaning](DIAGRAM.md)
 #### The sitaution: there is already a network, and you are connected to it assuming that there are N > 2 nodes or more.
 What happens when you're leaving the network by typing `disconnect` or unexpectedly close application?
 
-Thanks to WebSockets, every action you made are sending to sever/client even if you're disconnecting. So, when you are 
-leaving the NEXT and PREVIOUS node will know it. 
+Thanks to WebSockets, every action you made are sent to server/client even if you're disconnecting. So, when you are 
+leaving the NEXT and PREVIOUS nodes will know it.
+
+Let's assume there is a network about 5 nodes. And you're the node A.
