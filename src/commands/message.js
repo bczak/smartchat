@@ -5,7 +5,7 @@ import {client} from '../client.js'
 const msg = [{
 	type: 'input',
 	name: 'message',
-	message: 'You:'
+	message: ''
 }]
 
 async function messaging(cli) {

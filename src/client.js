@@ -29,6 +29,7 @@ class Client {
 			from: {name: await getName(), uuid: await getUUID()},
 			approved: {uuid: null, name: null}
 		}
+		if(!this.client.socket) return console.log(chalk.red('You are offline'))
 		this.client.socket.emit('message', JSON.stringify(ctx))
 	}
 	
