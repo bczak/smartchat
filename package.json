@@ -25,7 +25,6 @@
     "randanimal": "^1.0.4",
     "socket.io": "^3.0.5",
     "socket.io-client": "^3.0.5",
-    "sqlite3": "^5.0.1",
     "uuid": "^8.3.2",
     "uuid-time": "^1.0.0",
     "vorpal": "^1.12.0",
