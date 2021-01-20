@@ -28,7 +28,7 @@ export async function getUUID() {
 }
 
 export async function addLog(log) {
-	this.logs.push(log);
+	logs.push(log);
 }
 
 export async function getLogs() {
