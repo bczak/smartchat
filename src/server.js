@@ -115,15 +115,15 @@ class Server {
 		if (message.approved.uuid !== null && message.approved.uuid === me.uuid) {
 			return
 		}
-		if (message.from.uuid === me.uuid && message.approved.uuid === null) {
-			await this.startElection()
-			setTimeout((msg) => client.resend(msg), 500, message) // wait 0.5 second and resend it
-			return
-		}
 		if (message.approved.uuid === null && this.leader.uuid === me.uuid) {
 			message.approved = me
 			message.time = DateTime.local().toISO()
 			addLog("I approve the message - " + message)
+		}
+		if (message.from.uuid === me.uuid && message.approved.uuid === null) {
+			await this.startElection()
+			setTimeout((msg) => client.resend(msg), 500, message) // wait 0.5 second and resend it
+			return
 		}
 		if (message.approved.uuid !== null) {
 			const sender = (message.from.uuid === me.uuid) ? 'You' : message.from.name
