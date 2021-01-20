@@ -151,10 +151,12 @@ class Server {
 		if (this._election.me === null) this._election.me = uuidv4().toString()
 		// 1
 		if (data.candidate > this._election.me) {
+			this._election.partitipant = true; // EDITED
 			return client.emit('election', JSON.stringify(data))
 		}
 		// 2
 		if (data.candidate < this._election.me && !this._election.partitipant) {
+			this._election.partitipant = true; // EDITED
 			return client.emit('election', JSON.stringify({candidate: this._election.me}))
 		}
 		// 3
