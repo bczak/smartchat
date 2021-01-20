@@ -4,8 +4,9 @@ import * as connect from './connect.js'
 import * as message from './message.js'
 import * as election from './election.js'
 import * as disconnect from './disconnect.js'
-
+import * as log from './log.js'
 export default async function applyCommands(cli) {
+	await log.apply(cli)
 	await status.apply(cli)
 	await connect.apply(cli)
 	await message.apply(cli)

@@ -6,6 +6,8 @@ import * as uuid from 'uuid'
 
 const uuidv4 = uuid.v1
 
+const logs = []
+
 const port = process.env.PORT || 7777
 const memory = new Keyv({
 	store: new KeyvFile({filename: 'db' + port})
@@ -24,6 +26,16 @@ export async function getUUID() {
 	await memory.set('uuid', uuid)
 	return uuid
 }
+
+export async function addLog(log) {
+	this.logs.push(log);
+}
+
+export async function getLogs() {
+	return logs;
+}
+
+
 
 export async function setRecipients(recipients) {
 	await memory.set('recipients', recipients)

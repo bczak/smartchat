@@ -2,7 +2,7 @@ import http from 'http'
 import * as io from 'socket.io'
 import {client} from './client.js'
 import * as protocol from './protocol.js'
-import {addMessage, getName, getUUID} from './memory.js'
+import {addMessage, getName, getUUID, addLog} from './memory.js'
 import {redraw} from './cli.js'
 import * as uuid from 'uuid'
 import {DateTime} from 'luxon'
@@ -110,6 +110,7 @@ class Server {
 	 * if you are the sender and it is not approved, then start election
 	 */
 	async message(message) {
+		addLog('I got message - ' + message )
 		const me = {name: await getName(), uuid: await getUUID()}
 		if (message.approved.uuid !== null && message.approved.uuid === me.uuid) {
 			return
@@ -122,6 +123,7 @@ class Server {
 		if (message.approved.uuid === null && this.leader.uuid === me.uuid) {
 			message.approved = me
 			message.time = DateTime.local().toISO()
+			addLog("I approve the message - " + message)
 		}
 		if (message.approved.uuid !== null) {
 			const sender = (message.from.uuid === me.uuid) ? 'You' : message.from.name
@@ -141,7 +143,9 @@ class Server {
 		this._election.partitipant = true
 		this._election.candidate = this._election.me
 		const message = {candidate: this._election.me}
+		addLog('I started election')
 		await client.emit('election', JSON.stringify(message))
+		
 	}
 	
 	/**
@@ -167,6 +171,7 @@ class Server {
 		if (data.candidate === this._election.me) {
 			this._election = {me: null, partitipant: false, candidate: null}
 			this.leader = {name: await getName(), uuid: await getUUID()}
+			addLog('I was elected. I will let know others')
 			await client.emit('elected', JSON.stringify(this.leader))
 		}
 	}
@@ -176,6 +181,7 @@ class Server {
 	 */
 	async elected(data) {
 		if (data.uuid === await getUUID()) return
+		addLog("New leader - " + data.name)
 		this._election = {me: null, partitipant: false, candidate: null}
 		this.leader = data
 		await client.emit('elected', JSON.stringify(this.leader))

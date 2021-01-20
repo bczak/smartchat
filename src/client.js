@@ -3,7 +3,7 @@ import ora from 'ora'
 import {start, stop} from './cli.js'
 import chalk from 'chalk'
 import * as protocol from './protocol.js'
-import {getName, getUUID} from './memory.js'
+import {getName, getUUID, addLog} from './memory.js'
 import {server} from './server.js'
 
 class Client {
@@ -30,6 +30,7 @@ class Client {
 			approved: {uuid: null, name: null}
 		}
 		if(!this.client.socket) return console.log(chalk.red('You are offline'))
+		addLog('I sent message - ' + message)
 		this.client.socket.emit('message', JSON.stringify(ctx))
 	}
 	
@@ -37,6 +38,7 @@ class Client {
 	 * Function to resend message
 	 */
 	async resend(message) {
+		addLog('I resent message - ' + message)
 		this.client.socket.emit('message', JSON.stringify(message))
 	}
 	
